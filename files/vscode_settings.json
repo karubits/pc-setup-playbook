@@ -1,0 +1,11 @@
+{
+    "workbench.colorTheme": "Mayukai Alucard",
+    "workbench.iconTheme": "material-icon-theme",
+    "telemetry.telemetryLevel": "off",
+    "redhat.telemetry.enabled": false,
+    "terminal.integrated.fontSize": 12,
+    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+    "terminal.integrated.scrollback": 80000,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active"
+}

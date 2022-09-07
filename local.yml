@@ -1,0 +1,772 @@
+---
+
+- hosts: localhost
+  connection: local
+  become: true
+
+  vars:
+
+  handlers:
+
+    - name: font-cache-update
+      command: fc-cache -f -s
+
+  tasks:
+
+    - name: 🔹[apt] Upgrade the OS (apt-get dist-upgrade)
+      apt:
+        upgrade: dist
+        update_cache: yes
+        allow_downgrade: yes # Strange behavior with ibus 
+
+    # -----------------------------------------------------
+    # APT PACKAGES - REMOVE
+    # -----------------------------------------------------
+    - name: "🔹[apt] ensure unessential packages are absent"
+      apt:
+        name: 
+          #-------------------------
+          # Built-in games:
+          - ace-of-penguins 
+          - aisleriot
+          - five-or-more
+          - four-in-a-row
+          - gbrainy 
+          - gnome-2048
+          - gnome-chess 
+          - gnome-klotski
+          - gnome-mahjongg
+          - gnome-mines
+          - gnome-nibbles
+          - gnome-robots 
+          - gnome-sudoku 
+          - gnome-sushi 
+          - gnome-taquin 
+          - gnome-tetravex  
+          - gnomine 
+          - hitori
+          - iagno
+          - libgnome-games-support-common
+          - lightsoff 
+          - mahjongg 
+          - quadrapassel
+          - swell-foop 
+          - tali
+          #-------------------------
+          # LibreOffice (replace with container package):
+          - libreoffice-base-core
+          - libreoffice-calc
+          - libreoffice-common
+          - libreoffice-core
+          - libreoffice-draw
+          - libreoffice-gnome
+          - libreoffice-help-common
+          - libreoffice-help-en-us
+          - libreoffice-impress
+          - libreoffice-math
+          - libreoffice-style-colibre
+          - libreoffice-style-elementary
+          - libreoffice-writer
+          - libreofficekit-data
+          #-------------------------
+          # Evolution:
+          - evolution
+          - evolution-plugin-bogofilter 
+          - evolution-plugin-pstimport
+          - evolution-plugins
+          #-------------------------
+          # Misc. Items:
+          - malcontent                    # Parental Controls app in Gnome
+          - shotwell                      # Replaced with flatpak
+          - shotwell-common               # Replaced with flatpak
+          - totem                         # Gnome default video play, replaced by VLC Player
+          - totem-plugins                 # Plugins for Gnome default video play, replaced by VLC Player
+          - transmission                  # Torrent client is not required. 
+          - transmission-common
+          - transmission-gtk
+        state: absent
+        autoclean: yes
+
+    #-------------------------
+    # VMWARE GUEST 
+    #-------------------------
+    - name: "🔹[VMWare VM] ensure vm guest tools for desktop are installed on vmware guests"
+      apt:
+        name:
+          # ref. https://docs.vmware.com/en/VMware-Tools/11.2.5/com.vmware.vsphere.vmwaretools.doc/GUID-C48E1F14-240D-4DD1-8D4C-25B6EBE4BB0F.html
+          - open-vm-tools-desktop
+      when:
+        - ansible_virtualization_role == 'guest'
+        - ansible_virtualization_type == 'VMware'
+
+    #-------------------------
+    # KVM GUEST
+    #-------------------------
+    - name: "🔹[KVM VM] ensure qemu guest agent is installed for kvm based vm"
+      apt:
+        name:
+          - qemu-guest-agent
+      when:
+        - ansible_virtualization_role == 'guest'
+        - ansible_virtualization_type == 'kvm'
+
+    # -----------------------------------------------------
+    # APT PACKAGES - INSTALL
+    # -----------------------------------------------------
+    - name: 🔹 [apt] Install apt packages"
+      apt:
+        name:
+          - at
+          - bat                             # Rust based replacement to cat
+          - bzip2
+          - ca-certificates
+          - ccze                            # Colorize some output
+          - cowsay
+          - curl
+          - dconf-cli
+          - diceware                        # random password generator
+          - dnsutils                        # Collection of DNS tools e.g. dig      
+          - duf                             # Modern replacement for df (only in bullseye backports)
+          - exa                             # Rust based replacement to ls
+          - fd-find                         # Simple, fast and user-friendly alternative to find
+          - ffmpeg                          # Used for video conversion. Mainly used be integration team. 
+          - fonts-roboto
+          - gdu                             # Pretty fast disk usage analyzer
+          - git
+          - git-lfs
+          - gitlab-cli
+          - gnome-tweaks
+          - gnupg
+          - hstr                            # Easily view, navigate and search your command history with shell history suggest box for bash and zsh. ref. https://github.com/dvorka/hstr/
+          - httpie                          # Alternative to wget/curl with a more friendlier output. 
+          - ifuse                           # FUSE module for iPhone and iPod Touch devices
+          - imagemagick                     # ImageMagick is a software suite to create, edit, and compose bitmap images. 
+          - ipcalc                          # Useful network / subnet calculator
+          - jq                              # lightweight and flexible command-line JSON processor
+          - ldap-utils                      # This package provides utilities from the OpenLDAP (Lightweight Directory Access Protocol) package
+          - libimobiledevice-utils          # Utilities for communicating with iPhone and other Apple devices
+          - libssl-dev                      # Network Administration Requirements
+          - libxml2-dev                     # Network Administration Requirements
+          - libxslt1-dev                    # Network Administration Requirements
+          - lnav                            # Log files are a wealth of information, lnav can help highlight the parts that are important and filter out the noise. 
+          - lsb-release
+          - lsof                            # Lsof is a Unix-specific diagnostic tool.
+          - man-db
+          - manpages
+          - mariadb-client
+          - minicom                         # user for console connections (e.g.network switch administration)
+          - mkisofs                         # Creation of ISO images
+          - moreutils                       # This is a growing collection of the Unix tools that nobody thought to write long ago, when Unix was young.
+          - nala
+          - neofetch                        # Neofetch is a cross-platform and easy-to-use system information command line script that collects your Linux system information and display it on the terminal 
+          - net-tools                       # Collection of network tools
+          - network-manager-openvpn-gnome   # Gnome Network Manager plugin for OpenVPN
+          - nmap                            # Network discovery tool 
+          - openvpn                         # OpenVPN for VPN Connections
+          - pwgen                           # pwgen generates random, meaningless but pronounceable passwords.
+          - python3-dev
+          - python3-pip
+          - python3-setuptools              # Required by ansible pip module
+          - qrencode                        # Qrencode is a utility software using libqrencode to encode string data in a QR Code and save as a PNG or an EPS image.
+          - ripgrep                         # An extremely fast alternative to grep that respects your gitignore
+          - rsync
+          - socat                           # Socat (for SOcket CAT) establishes two bidirectional byte streams and transfers data between them. 
+          - speedtest-cli                   # Network speed tester
+          - sshpass                         # Non-interactive ssh password authentication / Used by Ansible
+          - task-japanese
+          - terminator
+          - tldr
+          - tmux                            # tmux is a terminal multiplexer for Unix-like operating systems
+          - ufw                             # Uncomplicated firewall
+          - unattended-upgrades
+          - vim
+          - virtualbox
+          - wireguard
+          - wireguard-tools
+          - wireshark                       # Network packet sniffer tool 
+          - yubico-piv-tool                 # Command line tool for the YubiKey PIV applet for pkcs#11
+          - yubikey-luks                    # YubiKey two factor authentication for LUKS disks
+          - yubikey-personalization         # Personalization tool for Yubikey OTP tokens
+          # Japanese Language Support
+          - language-pack-gnome-ja          # Add Japanese language support to Gnome
+          - language-pack-gnome-ja-base     # Add Japanese language support to Gnome
+          - language-pack-ja                # Add Japanese language support to Gnome
+          # Japanese fonts:
+          - fonts-freefont-ttf
+          - fonts-ipafont
+          - fonts-migmix
+          - fonts-mona
+          - fonts-mplus
+          - fonts-noto
+          - fonts-takao
+          - fonts-umeplus
+          - fonts-vlgothic
+        state: present
+        update_cache: yes
+      retries: 3
+      delay: 3
+      register: apt_res_1
+      until: apt_res_1 is success
+
+    - name: 🔹 [apt] Install apt packages (Japanese input)"
+      apt:
+        name:
+          - mozc-utils-gui
+          - mozc-server
+          - mozc-data
+          - ibus
+          - ibus-mozc
+        state: present
+        update_cache: yes
+        allow_downgrade: yes
+      retries: 3
+      delay: 3
+      register: apt_res_2
+      until: apt_res_2 is success
+
+    # -----------------------------------------------------
+    # RETRIEVE THE LATEST VERSIONS OF THE BINARIES
+    # -----------------------------------------------------
+    - name: 🔹 get the latest smallstep cli release 
+      uri:                                                               
+        url: https://api.github.com/repos/smallstep/cli/releases/latest
+        return_content: true                                             
+      register: smallstep_cli_latest        
+
+    - name: 🔹 get the latest bitwarden cli release 
+      uri:                                                               
+        url: https://api.github.com/repos/bitwarden/cli/releases/latest
+        return_content: true                                             
+      register: bitwarden_cli_latest
+
+    - name: 🔹 get the latest restic release 
+      uri:                                                               
+        url: https://api.github.com/repos/restic/restic/releases/latest
+        return_content: true                                             
+      register: restic_latest   
+
+    - name: 🔹 get the latest rke release 
+      uri:                                                               
+        url: https://api.github.com/repos/rancher/rke/releases/latest
+        return_content: true                                             
+      register: rke_latest   
+
+    - name: 🔹 get the latest starship release 
+      uri:                                                               
+        url: https://api.github.com/repos/starship/starship/releases/latest
+        return_content: true                                             
+      register: starship_latest  
+
+    - name: 🔹 get the latest kubectl release 
+      uri:                                                               
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true                                             
+      register: kubectl_latest
+
+    - name: 🔹 get the latest kompose release 
+      uri:                                                               
+        url: https://api.github.com/repos/kubernetes/kompose/releases/latest
+        return_content: true                                             
+      register: kompose_latest 
+
+
+    # -----------------------------------------------------
+    # GPG KEYS FOR 3RD PARTY REPOS
+    # -----------------------------------------------------
+    - name: "🔹 [apt] ensure armored keys are present"
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/etc/apt/trusted.gpg.d/{{ item.dest }}.gpg_armored"
+        checksum: "{{ item.checksum }}"
+      with_items:
+        - { dest: docker, url: https://download.docker.com/linux/ubuntu/gpg, checksum: sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570 }
+        - { dest: hashicorp, url: https://apt.releases.hashicorp.com/gpg, checksum: sha256:ecc3a34eca4ba12166b58820fd8a71e8f6cc0166d7ed7598a63453648f49c4c5}
+        - { dest: helm, url: https://baltocdn.com/helm/signing.asc, checksum: sha256:15ca14a5d574770393ea424157a3ce7ebb873cb7d749d08e3abae46581ca098d }
+        - { dest: microsoft, url: https://packages.microsoft.com/keys/microsoft.asc, checksum: sha256:2cfd20a306b2fa5e25522d78f2ef50a1f429d35fd30bd983e2ebffc2b80944fa }
+    
+    - name: "🔹 [apt] ensure armored keys are dearmored for apt (not impotent)"
+      shell: "gpg --dearmor < /etc/apt/trusted.gpg.d/{{ item }}.gpg_armored > /etc/apt/trusted.gpg.d/{{ item }}.gpg"
+      args:
+        creates: "/etc/apt/trusted.gpg.d/{{ item }}"
+      with_items:
+        - docker
+        - hashicorp
+        - helm
+        - microsoft
+
+    - name: "🔹 [apt] ensure dearmored gpg keys are present"
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/etc/apt/trusted.gpg.d/{{ item.dest}}.gpg"
+        checksum: "{{ item.checksum }}"
+      with_items:
+        - { url: https://packages.cloud.google.com/apt/doc/apt-key.gpg, dest: google-cloud, checksum: sha256:ff834d1e179c3727d9cd3d0c8dad763b0710241f1b64539a200fbac68aebff3e }
+
+
+    # -----------------------------------------------------
+    # 3RD PARTY REPOS
+    # -----------------------------------------------------
+    - name: "🔹 [apt] add repos"
+      apt_repository:
+        repo: "{{ item.repo }}"
+        state: present
+        update_cache: yes
+        filename: "{{ item.name }}"
+      with_items:
+        # Microsoft VS Code:
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/code stable main", name: vscode }
+        # Hashicorp (Vault, Terraform):
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/hashicorp.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main", name: hashicorp }
+        # Microsoft Powershell:
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/ubuntu/{{ ansible_distribution_version }}/prod {{ ansible_distribution_release }} main", name: microsoft }
+        # Azure CLI:
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main", name: azurecli }
+        # Docker
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable", name: docker }
+        # Helm
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main", name: helm }
+      retries: 3
+      delay: 3
+      register: apt_res_3
+      until: apt_res_3 is success
+
+    # -----------------------------------------------------
+    # 3RD PARTY APT PACKAGES
+    # -----------------------------------------------------
+    - name: "🔹 [apt] install packages from 3rd parties apt repos"
+      apt:
+        name: 
+        - azure-cli
+        - code                    # Visual Studio Code  
+        - containerd.io
+        - docker-ce
+        - docker-ce-cli
+        - docker-compose-plugin
+        - helm
+        - packer
+        - powershell
+        - terraform
+        - vagrant
+        - vault
+        state: present
+        update_cache: yes
+      retries: 3
+      delay: 3
+      register: apt_res_4
+      until: apt_res_4 is success
+
+    # -----------------------------------------------------
+    # 3RD PARTY BINARIES
+    # -----------------------------------------------------
+    - name: "🔹 [binaries] ensure single binaries are present"
+      get_url:
+        url: "{{ item.url }}"
+        dest: /usr/local/bin/{{ item.dest }}
+        mode: u=xrw,g=xr,o=xr
+      with_items:
+        # Rancher RKE
+        - { url: "https://github.com/rancher/rke/releases/download/{{ rke_latest.json.tag_name }}/rke_linux-amd64", dest: rke }
+        # MinIO CLI
+        - { url: "https://dl.min.io/client/mc/release/linux-amd64/mc", dest: mc }
+        # Kubectl
+        - { url: "https://dl.k8s.io/release/{{ kubectl_latest.content }}/bin/linux/amd64/kubectl", dest: kubectl }
+      register: binary_output
+      retries: 3
+      delay: 3
+      until: binary_output is success
+
+    - name: "🔹 [binaries] ensure single binaries that are archived are present"
+      unarchive:
+        src: "{{ item }}"
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: u=xrw,g=xr,o=xr
+      with_items:
+        # Bitwarden CLI Interface
+        - "https://github.com/bitwarden/cli/releases/download/{{ bitwarden_cli_latest.json.tag_name }}/bw-linux-{{ bitwarden_cli_latest.json.tag_name [1:] }}.zip"
+        # Starship
+        - "https://github.com/starship/starship/releases/download/{{ starship_latest.json.tag_name }}/starship-x86_64-unknown-linux-gnu.tar.gz"
+      register: binary_unarchive_output
+      retries: 3
+      delay: 3
+      until: binary_unarchive_output is success
+
+    # -----------------------------------------------------
+    # RESTIC BACKUPS
+    # -----------------------------------------------------
+    # Note: Unable to use the unarchive module for this bz2 archive 
+    - name: "🔹 [restic] check if restic exists"
+      stat:
+        path: /usr/local/bin/restic
+      register: restic_check
+
+    - name: "🔹 [restic] download restic"
+      get_url:
+        url: "https://github.com/restic/restic/releases/download/{{ restic_latest.json.tag_name }}/restic_{{ restic_latest.json.tag_name [1:] }}_linux_amd64.bz2"
+        dest: /tmp/
+        mode: u=xrw,g=xr,o=xr
+      when: not restic_check.stat.exists
+
+    - name: "🔹 [restic] extract the binary"
+      command: bzip2 -d /tmp/restic_{{ restic_latest.json.tag_name [1:] }}_linux_amd64.bz2 
+      when: not restic_check.stat.exists
+
+    - name: "🔹 [restic] copy the extracted restic binary"
+      copy:
+        src: /tmp/restic_{{ restic_latest.json.tag_name [1:] }}_linux_amd64
+        dest: /usr/local/bin/restic
+        remote_src: yes
+        mode: u=xrw,g=xr,o=xr
+      when: not restic_check.stat.exists
+
+    # -----------------------------------------------------
+    # 3RD PARTY DEB PACKAGES
+    # -----------------------------------------------------
+    - name: "🔹 3rd Party deb packages"
+      apt:
+        deb: "{{ item }}"
+        state: present
+      with_items:
+        # Kubenetes - Minikube:
+        - https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+        # Smallstep CLI:
+        - "https://dl.step.sm/gh-release/cli/gh-release-header/{{ smallstep_cli_latest.json.tag_name }}/step-cli_{{ smallstep_cli_latest.json.tag_name [1:] }}_amd64.deb"
+        # Kubenetes - Kompose
+        - "https://github.com/kubernetes/kompose/releases/download/{{ kompose_latest.json.tag_name }}/kompose_{{ kompose_latest.json.tag_name [1:] }}_amd64.deb"
+
+    # -----------------------------------------------------
+    # PIP PACKAGES
+    # -----------------------------------------------------
+    - name: "🔹[pip] ensure user level pip packages are present"
+      pip:
+        name:
+          # Standard tooling
+          - ansible          # Ansible is an open-source software provisioning, configuration management, and application-deployment tool enabling infrastructure as code.s
+          - awscli           # This package provides a unified command line interface to Amazon Web Services.
+          - awxkit           # Ansible AWX Cli 
+          - boto3            # AWS SDK for Python (Boto3) to create, configure, and manage AWS services,
+          - botocore         # low-level interface to Amazon Web Services. Botocore serves as the foundation for the Boto3
+          - bpython          # bpython is a lightweight Python interpreter that adds several features common to IDEs. These features include syntax highlighting, expected parameter list, auto-indentation, and autocompletion.
+          - bpytop           # A Python-based resource monitor for your terminal. htop is so 1994
+          - icdiff           # Improved colored diff. ref. https://github.com/jeffkaufman/icdiff
+          - ipython          # IPython provides a rich toolkit to help you make the most of using Python interactively
+          - molecule         # Molecule project is designed to aid in the development and testing of Ansible roles.
+          - s3cmd            # S3cmd is a free command line tool and client for uploading, retrieving and managing data in Amazon S3 and other cloud storage service providers that use the S3 protocol, such as Google Cloud Storage or DreamHost DreamObjects.
+          - s3transfer       # S3transfer is a Python library for managing Amazon S3 transfers. This project is maintained and published by Amazon Web Services.
+          - thefuck          # The Fuck corrects errors in previous console commands. ref.https://github.com/nvbn/thefuck
+          # -----------------------------
+          # Below is required for network administration:
+          - asn1crypto 
+          - bcrypt 
+          - cryptography 
+          - Jinja2 
+          - junos-eznc 
+          - jxmlease 
+          - MarkupSafe 
+          - ncclient
+          - netaddr 
+          - paramiko 
+          - pyeapi
+          - PyYAML 
+          - ssh-paramiko 
+        state: present
+        executable: /usr/bin/pip3 
+      become: false
+      retries: 3
+      delay: 3
+      register: pip_res_1
+      until: pip_res_1 is success
+
+    - name: "🔹[pip] ensure system level pip packages are present"
+      pip:
+        name:
+          - thefuck          # The Fuck corrects errors in previous console commands. ref.https://github.com/nvbn/thefuck
+        state: present
+        executable: /usr/bin/pip3 
+      become: true
+      retries: 3
+      delay: 3
+      register: pip_res_1
+      until: pip_res_1 is success
+
+    # -----------------------------------------------------
+    # 3RD PARTY CUSTOMIZATIONS
+    # -----------------------------------------------------
+    - name: "🔹 [Docker] ensure the user is part of the docker group. "
+      user:
+        name: "{{ ansible_env.SUDO_USER }}"
+        groups: 
+          - docker
+        append: yes
+        state: present
+
+    # -----------------------------------------------------
+    # NERD FONTS
+    # -----------------------------------------------------
+    - name: "[fonts] check if nerd fonts are already installed"
+      command: /usr/bin/fc-list
+      register: font_list
+
+    - name: 🔹 [fonts] create the nerd-fonts directory
+      file:
+        path: /usr/local/share/fonts/nerd-fonts
+        state: directory
+
+    - name: "🔹 [fonts] get latest nerdfont release"
+      uri:                                                               
+        url: https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest
+        return_content: true                                             
+      register: nerdfont_latest
+      when: not font_list.stdout is search('Nerd Font')
+
+    - name: "🔹 [fonts] ensure latest nerd fonts are present"
+      unarchive:
+        src: "{{ item }}"
+        dest: /usr/local/share/fonts/nerd-fonts
+        remote_src: yes
+        mode: u=rw,g=r,o=r
+      with_items:
+        - "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfont_latest.json.tag_name }}/CascadiaCode.zip"
+        - "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfont_latest.json.tag_name }}/UbuntuMono.zip"
+        - "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfont_latest.json.tag_name }}/JetBrainsMono.zip"
+        - "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfont_latest.json.tag_name }}/Hack.zip"
+        - "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfont_latest.json.tag_name }}/RobotoMono.zip"
+      notify: font-cache-update
+      when: not font_list.stdout is search('Nerd Font')
+
+    - name: "🔹 [fonts] delete Windows compatbiles fonts"
+      file: 
+        path: "{{ item }}"
+        state: absent
+      with_fileglob: 
+        - /usr/local/share/fonts/nerd-fonts/*Windows*
+        - /usr/local/share/fonts/nerd-fonts/LICENS*
+        - /usr/local/share/fonts/nerd-fonts/readm*
+      notify: font-cache-update
+
+
+    #------------------------------------------------------------
+    # TERMINATOR 
+    #------------------------------------------------------------
+    - name: "🔹[Terminator] check if terminator config exists"
+      stat: 
+        path: ~/.config/terminator/config
+      register: terminator_config
+      become: false
+    
+    - name: "🔹[Terminator] Create a directory if it does not exist"
+      ansible.builtin.file:
+        path: ~/.config/terminator
+        state: directory
+        mode: '0755'
+      when: terminator_config.stat.exists == false
+      become: false
+    
+    - name: "🔹[Terminator] ensure terminator config file is present"
+      copy: 
+        src: files/terminator_config
+        dest: ~/.config/terminator/config
+        owner: "{{ ansible_env.SUDO_USER }}"
+        group: "{{ ansible_env.SUDO_USER }}"
+      when: terminator_config.stat.exists == false
+      become: false
+
+    # -----------------------------------------------------
+    # ICON PACK
+    # -----------------------------------------------------
+    - name: "🔹 [icons] Add the papirus repo"
+      apt_repository:
+        repo: "ppa:papirus/papirus"
+      tags: icons
+
+    - name: "🔹 [icons] ensure papirus packages are present"
+      apt:
+        name:
+          - papirus-folders
+          - papirus-icon-theme
+        state: present
+        update_cache: yes
+      tags: icons
+
+    - name: "🔹 [icons] Change theme folder colors"
+      shell: |
+        papirus-folders -u
+        papirus-folders -C pink --theme Papirus-Dark
+        papirus-folders -C pink --theme Papirus
+      tags: icons
+
+    - name: "🔹[icons] switch icon theme"
+      community.general.dconf:
+        key: "/org/gnome/desktop/interface/icon-theme"
+        value: "'Papirus-Dark'"
+        state: present
+      become: false
+      tags: icons
+
+    # -----------------------------------------------------
+    # GNOME TWEAKS
+    # -----------------------------------------------------
+    - name: "🔹[gnome] various gnome settings"
+      community.general.dconf:
+        key: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+      with_items:
+        - key: /org/gnome/shell/weather/automatic-location
+          value: "true"
+        - key: /org/gnome/shell/weather/locations
+          value: "[<(uint32 2, <('Tokyo', 'RJTI', true, [(0.62191898430954862, 2.4408429589140699)], [(0.62282074357417661, 2.4391218722853854)])>)>]"
+        # POP OS DOCK BEHAVIOUR
+        - key: /org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size
+          value: "36"
+        - key: /org/gnome/shell/extensions/dash-to-dock/dock-alignment
+          value: "'CENTER'"
+        - key: /org/gnome/shell/extensions/dash-to-dock/dock-fixed
+          value: "false"
+        - key: /org/gnome/shell/extensions/dash-to-dock/extend-height
+          value: "false"
+        - key: /org/gnome/shell/extensions/dash-to-dock/intellihide
+          value: "true"
+        - key: /org/gnome/shell/extensions/dash-to-dock/manualhide
+          value: "false"
+        - key: /org/gnome/shell/extensions/dash-to-dock/multi-monitor
+          value: "false"
+        - key: /org/gnome/shell/favorite-apps
+          value: "['pop-cosmic-launcher.desktop', 'pop-cosmic-workspaces.desktop', 'pop-cosmic-applications.desktop', 'firefox.desktop', 'code.desktop', 'terminator.desktop', 'net.cozic.joplin_desktop.desktop', 'com.bitwarden.desktop.desktop', 'org.remmina.Remmina.desktop', 'org.gnome.Nautilus.desktop', 'io.elementary.appcenter.desktop', 'gnome-control-center.desktop']"
+        # Gnome Terminal
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/font
+          value: "'JetBrainsMono Nerd Font Mono 12'"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/background-color
+          value: "'#262626262626'"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/background-transparency-percent
+          value: "11"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/bold-color
+          value: "'#F8F8F8F8F2F2'"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/bold-color-same-as-fg=
+          value: "false"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/bold-is-bright
+          value: "false"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/cursor-background-color
+          value: "'rgb(246,5,234)'"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/foreground-color
+          value: "'#F8F8F8F8F2F2'"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/palette
+          value: "['rgb(117,113,94)', 'rgb(249,38,114)', 'rgb(166,226,46)', 'rgb(244,191,117)', 'rgb(252,139,84)', 'rgb(174,129,255)', 'rgb(42,161,152)', 'rgb(249,249,245)', 'rgb(39,40,34)', 'rgb(249,38,114)', 'rgb(166,226,46)', 'rgb(244,191,117)', 'rgb(252,139,84)', 'rgb(174,129,255)', 'rgb(42,161,152)', 'rgb(249,248,245)']"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/scrollback-unlimited
+          value: "true"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/use-theme-colors
+          value: "false"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/use-theme-transparency
+          value: "false"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/use-transparent-background
+          value: "true"
+        - key: /org/gnome/terminal/legacy/profiles:/:c237ed73-6c76-4b32-953f-7f2065c5fb6b/visible-name
+          value: "'karubits'"
+        - key: /org/gnome/terminal/legacy/profiles:/default
+          value: "'c237ed73-6c76-4b32-953f-7f2065c5fb6b'"
+        - key: /org/gnome/terminal/legacy/profiles:/list
+          value: ['b1dcc9dd-5262-4d8d-a863-c897e6d979b9', 'c237ed73-6c76-4b32-953f-7f2065c5fb6b']
+        # Other Settings
+        - key: /org/gnome/desktop/privacy/report-technical-problems
+          value: "false"
+        - key: /org/gnome/desktop/interface/clock-show-weekday
+          value: "true"
+        - key: /org/gnome/desktop/interface/color-scheme
+          value: "'prefer-dark'"
+        - key: /org/gnome/desktop/interface/monospace-font-name
+          value: "'JetBrainsMono Nerd Font 11'"
+      tags: dconf
+      become: false
+
+
+    # -----------------------------
+    # FLATPAK PACKAGES
+    # -----------------------------
+    - name: "🔹 [Flatpak] Add the flathub repository at the user level"
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+        method: user
+      become: false
+
+    - name: "🔹 [Flatpak] Add the flathub repository at the system level"
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+        method: system
+      become: true
+
+    - name: "🔹 [Flatpak] ensure global (system) packages are present"
+      community.general.flatpak:
+        name:
+          - com.bitwarden.desktop
+          - com.brave.Browser             
+          - com.github.marktext.marktext          # Next generation markdown editor
+          - com.github.PintaProject.Pinta         # Equiv. of paint.net on Windows. 
+          - com.jgraph.drawio.desktop				      # diagrams.net (draw.io) diagram tool 
+          - com.mattermost.Desktop					      # Opensource team chat
+          - com.mattjakeman.ExtensionManager      # Gnome Extension Manager
+          - com.skype.Client                      # Skype
+          - com.uploadedlobster.peek              # Simple screen recorder with an easy to use interface
+          - fr.handbrake.ghb
+          - io.github.gitahead.GitAhead           # GitAhead is a graphical Git client.  It features a fast native interface designed to help you understand and manage your source code history
+          - io.github.seadve.Kooha                # Wayland supported screen recorder
+          - net.cozic.joplin_desktop              # A free, open source note taking and to-do application, which can handle a large number of notes organised into notebooks.
+          - org.filezillaproject.Filezilla			  # Filezilla  Client is a fast and reliable cross-platform FTP, FTPS and SFTP client 
+          - org.gimp.GIMP                         # GIMP is an acronym for GNU Image Manipulation Program. It is a freely distributed program for such tasks as photo retouching, image composition and image authoring.
+          - org.gnome.Shotwell                    # Shotwell Popular photo manager
+          - org.kde.kdenlive                      # KdenLive is a full featured video editor
+          - org.keepassxc.KeePassXC					      # KeePassXC is an application for people with extremely high demands on secure personal data management. It has a light interface, is cross-platform and published under the terms of the GNU General Public License.
+          - org.ksnip.ksnip							          # ​Ksnip is a Qt based cross-platform screenshot tool that provides many annotation features for your screenshots. ​
+          - org.libreoffice.LibreOffice   # LibreOffice is a powerful office suite. Its clean interface and feature-rich tools help you unleash your creativity and enhance your productivity
+          - org.onlyoffice.desktopeditors         # Alternative to LibreOffice with good file compatibility   
+          - org.qbittorrent.qBittorrent           # An open-source Bittorrent client
+          - org.remmina.Remmina                   # Remote desktop 
+          - org.videolan.VLC                      # VLC is a free and open source cross-platform multimedia player and framework that plays most multimedia files as well as DVDs, Audio CDs, VCDs, and various streaming protocols.
+        method: system
+        remote: flathub
+      retries: 5
+      delay: 15
+      register: flatpak_res_1
+      until: flatpak_res_1 is success
+      become: true
+
+    - name: "🔹 ensure {{ ansible_env.SUDO_USER }} dot files are present"
+      template:
+        src: templates/{{ item.src }}
+        dest: "/home/{{ ansible_env.SUDO_USER }}/{{ item.dest }}"
+        owner: "{{ ansible_env.SUDO_USER }}"
+        group: "{{ ansible_env.SUDO_USER }}"
+        mode: '0644'
+      become: false
+      with_items:
+        - { src: bashrc.j2, dest: .bashrc }
+        - { src: bash_aliases.j2, dest: .bash_aliases }
+      tags: dot_files
+
+    - name: "🔹 ensure root dot files are present"
+      template:
+        src: templates/{{ item.src }}
+        dest: "/root/{{ item.dest }}"
+        owner: "root"
+        group: "root"
+        mode: '0644'
+      become: false
+      with_items:
+        - { src: bashrc.j2, dest: .bashrc }
+        - { src: bash_aliases.j2, dest: .bash_aliases }
+      tags: dot_files
+
+
+    - name: "🔹[starship] ensure the starship configuration file is present"
+      copy:
+        src: files/starship.toml
+        dest: /home/{{ ansible_env.SUDO_USER }}/.config/starship.toml
+        owner: "{{ ansible_env.SUDO_USER }}"
+        group: "{{ ansible_env.SUDO_USER }}"
+        mode: '0644'
+      become: false
+      tags: dot_files
+
