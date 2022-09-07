@@ -776,3 +776,14 @@
       become: false
       tags: dot_files
 
+    - name: "🔹[starship] ensure the starship configuration file is present"
+      copy:
+        src: files/starship.toml
+        dest: /root/.config/starship.toml
+        owner: "{{ ansible_env.SUDO_USER }}"
+        group: "{{ ansible_env.SUDO_USER }}"
+        mode: '0644'
+      become: true
+      tags: dot_files
+
+      
