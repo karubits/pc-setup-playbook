@@ -162,7 +162,7 @@
           - net-tools                       # Collection of network tools
           - network-manager-openvpn-gnome   # Gnome Network Manager plugin for OpenVPN
           - nmap                            # Network discovery tool 
-          - open-ssh-server
+          - openssh-server
           - openvpn                         # OpenVPN for VPN Connections
           - pwgen                           # pwgen generates random, meaningless but pronounceable passwords.
           - python3-dev
@@ -827,15 +827,15 @@
         append: yes
         state: present
 
-    - name: "🔒 ensure user {{ ansible_env.SUDO_USER }} has a .ssh directory"
+    - name: "🔒 [ssh] ensure user {{ ansible_env.SUDO_USER }} has a .ssh directory"
       file:
         path: "/home/{{ ansible_env.SUDO_USER }}/.ssh/"
         state: directory
         mode: '0700'
         owner: "{{ ansible_env.SUDO_USER }}"
         group: "{{ ansible_env.SUDO_USER }}"
-    
-    - name: "🔒 ensure authorized ssh keys are present"
+
+    - name: "🔒 [ssh] ensure authorized ssh keys are present"
       lineinfile:
         path: "/home/{{ ansible_env.SUDO_USER }}/.ssh/authorized_keys"
         line: "{{ item }}"
@@ -846,4 +846,3 @@
         mode: "u+rw"
       with_items:
         - " ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPxXWb6gYofC2Ngx/TBDHPRqJth3ujOvQa5GdCE6ZZDW"
-    
