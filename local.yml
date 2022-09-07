@@ -754,7 +754,7 @@
         owner: "root"
         group: "root"
         mode: '0644'
-      become: false
+      become: true
       with_items:
         - { src: bashrc.j2, dest: .bashrc }
         - { src: bash_aliases.j2, dest: .bash_aliases }
