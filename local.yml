@@ -744,6 +744,7 @@
       with_items:
         - { src: bashrc.j2, dest: .bashrc }
         - { src: bash_aliases.j2, dest: .bash_aliases }
+        - { src: gitconfig.j2, dest: .gitconfig }
       tags: dot_files
 
     - name: "🔹 ensure root dot files are present"
