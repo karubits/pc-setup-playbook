@@ -273,6 +273,7 @@
     # -----------------------------------------------------
     # GPG KEYS FOR 3RD PARTY REPOS
     # -----------------------------------------------------
+    # Note: apt-key is depreciated 
     - name: "🔹 [apt] ensure armored keys are present"
       get_url:
         url: "{{ item.url }}"
@@ -301,6 +302,7 @@
         checksum: "{{ item.checksum }}"
       with_items:
         - { url: https://packages.cloud.google.com/apt/doc/apt-key.gpg, dest: google-cloud, checksum: sha256:ff834d1e179c3727d9cd3d0c8dad763b0710241f1b64539a200fbac68aebff3e }
+        - { url: https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg, dest: tailscale, checksum: sha256:3e03dacf222698c60b8e2f990b809ca1b3e104de127767864284e6c228f1fb39 }
 
 
     # -----------------------------------------------------
@@ -325,6 +327,8 @@
         - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable", name: docker }
         # Helm
         - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main", name: helm }
+        # Tailscale
+        - { repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/tailscale.gpg]  https://pkgs.tailscale.com/stable/ubuntu {{ ansible_distribution_release }} main", name: tailscale }
       retries: 3
       delay: 3
       register: apt_res_3
@@ -345,6 +349,7 @@
         - helm
         - packer
         - powershell
+        - tailscale
         - terraform
         - vagrant
         - vault
