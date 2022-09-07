@@ -786,4 +786,42 @@
       become: true
       tags: dot_files
 
-      
+    - name: "🔹[UFW] allow SSH with UFW"
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: "🔹[UFW] set ufw logging level and enable"
+      community.general.ufw:
+        logging: 'low'
+        state: enabled 
+
+    - name: "🔹[SSH] sshd_config hardening"
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        state: present
+        backrefs: yes
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        validate: "/usr/sbin/sshd -t -f %s"
+      with_items:
+        - regexp: '^#?\s*PasswordAuthentication yes'
+          line: "PasswordAuthentication no"
+        - regexp: '^#?\s*PubkeyAuthentication'
+          line: "PubkeyAuthentication yes"
+        - regexp: '^#?\s*StrictModes'
+          line: "StrictModes yes"
+        - regexp: '^#?\s*ClientAliveCountMax'
+          line: "ClientAliveCountMax 0"
+        - regexp: '^#?\s*PermitEmptyPasswords'
+          line: "PermitEmptyPasswords no"
+        - regexp: '^#?\s*PermitRootLogin'
+          line: "PermitRootLogin no"
+
+    - name: "🔹[Groups] ensure the user {{ ansible_env.SUDO_USER }} is part of the adm."
+      user:
+        name: "{{ ansible_env.SUDO_USER }}"
+        groups: 
+          - adm # Members of this group can read many log files in /var/log, and can use xconsole. Historically, /var/log was /usr/adm (and later /var/adm), thus the name of the group.
+        append: yes
+        state: present
