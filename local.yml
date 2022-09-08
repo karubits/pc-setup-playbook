@@ -11,6 +11,9 @@
     - name: font-cache-update
       command: fc-cache -f -s
 
+    - name: update initramfs
+      command: update-initramfs -u
+
   tasks:
 
     - name: 🔹[apt] Upgrade the OS (apt-get dist-upgrade)
@@ -872,3 +875,4 @@
         - "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/adlp_guc_70.1.1.bin"
       when: ansible_virtualization_role != "guest"
       tags: firmware
+      notify: update initramfs
