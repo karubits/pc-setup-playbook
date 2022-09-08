@@ -854,3 +854,23 @@
         mode: "u+rw"
       with_items:
         - " ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPxXWb6gYofC2Ngx/TBDHPRqJth3ujOvQa5GdCE6ZZDW"
+
+    - name: "🔹 [firmware] Installing missing firmware"
+      get_url:
+        url: "{{ item }}"
+        dest: "/lib/firmware/i915/"
+      with_items:
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/i915/skl_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/bxt_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/kbl_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/glk_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/cml_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/icl_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/ehl_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/tgl_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/dg1_guc_70.1.1.bin
+        - https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915/adlp_guc_70.1.1.bin
+    when: 
+      - ansible_virtualization_role != "guest"
+    tags: firmware
+    
