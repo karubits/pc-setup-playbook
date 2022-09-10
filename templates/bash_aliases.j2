@@ -1,6 +1,8 @@
 # {{ ansible_managed }}
 
-alias ls="exa --long --header -all --group-directories-first --color=always --icons"
+alias ls='exa --long --header -all --group-directories-first --color=always --icons'
+alias l='lsd -hA --group-dirs first'
+alias ll='lsd -hA --group-dirs first -l --header'
 alias find=fdfind                                                   
 alias cat=batcat
 alias df=duf
@@ -11,6 +13,9 @@ alias g=git
 alias k=kubectl
 alias apt=nala
 alias hh=hstr
+alias grep='grep --colors'
+alias i='ip -br -c a'
+
 
 #-------------------------
 # # ex - archive extractor

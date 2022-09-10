@@ -273,6 +273,11 @@
         return_content: true                                             
       register: kompose_latest 
 
+    - name: 🔹 get the latest lsd release 
+      uri:                                                               
+        url: https://api.github.com/repos/Peltoche/lsd/releases/latest
+        return_content: true                                             
+      register: lsd_latest 
 
     # -----------------------------------------------------
     # GPG KEYS FOR 3RD PARTY REPOS
@@ -442,6 +447,8 @@
         - "https://dl.step.sm/gh-release/cli/gh-release-header/{{ smallstep_cli_latest.json.tag_name }}/step-cli_{{ smallstep_cli_latest.json.tag_name [1:] }}_amd64.deb"
         # Kubenetes - Kompose
         - "https://github.com/kubernetes/kompose/releases/download/{{ kompose_latest.json.tag_name }}/kompose_{{ kompose_latest.json.tag_name [1:] }}_amd64.deb"
+        # lsd
+        - "https://github.com/Peltoche/lsd/releases/download/{{ lsd_latest.json.tag_name }}/lsd_{{ lsd_latest.json.tag_name }}_amd64.deb"
 
     # -----------------------------------------------------
     # PIP PACKAGES
