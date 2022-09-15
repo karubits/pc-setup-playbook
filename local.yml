@@ -13,6 +13,7 @@
 
     - name: update initramfs
       command: update-initramfs -u
+      tags: firmware
 
   tasks:
 
@@ -126,6 +127,7 @@
           - ccze                            # Colorize some output
           - cowsay
           - curl
+          - cifs-utils
           - dconf-cli
           - diceware                        # random password generator
           - dnsutils                        # Collection of DNS tools e.g. dig      
@@ -590,9 +592,17 @@
     # -----------------------------------------------------
     # ICON PACK
     # -----------------------------------------------------
-    - name: "🔹 [icons] Add the papirus repo"
+    - name: "🔹 [icons] ensure the papirus gpg key is present"
+      command: /usr/bin/gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/papirus.gpg --keyserver keyserver.ubuntu.com --recv E58A9D36647CAE7F
+      creates: /etc/apt/trusted.gpg.d/papirus.gpg
+      tags: icons
+
+    - name: "🔹 [apt] add paprius repository"
       apt_repository:
-        repo: "ppa:papirus/papirus"
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/papirus.gpg] http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main"
+        state: present
+        update_cache: yes
+        filename: "papirus"
       tags: icons
 
     - name: "🔹 [icons] ensure papirus packages are present"
