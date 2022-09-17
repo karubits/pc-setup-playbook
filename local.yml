@@ -606,7 +606,7 @@
         creates: /etc/apt/trusted.gpg.d/papirus.gpg
       tags: icons
 
-    -  name: 🔹 [icons] ensure the papirus gpg has the correct permissions"
+    - name: 🔹 [icons] ensure the papirus gpg has the correct permissions"
       file:
         path: /etc/apt/trusted.gpg.d/papirus.gpg
         mode: '0644'
