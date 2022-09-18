@@ -592,16 +592,24 @@
     # -----------------------------------------------------
     # ICON PACK
     # -----------------------------------------------------
+    - name: "🔹 [icons] ensure the .gnupg directory exists"
+      file:
+        path: "/root/.gnupg"
+        state: directory
+        mode: '0700'
+        owner: root
+        group: root
+
     - name: "🔹 [icons] ensure the papirus gpg key is present"
       command: /usr/bin/gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/papirus.gpg --keyserver keyserver.ubuntu.com --recv E58A9D36647CAE7F
       args:
         creates: /etc/apt/trusted.gpg.d/papirus.gpg
       tags: icons
 
-    -  name: 🔹 [icons] ensure the papirus gpg has the correct permissions"
-       file:
-         path: /etc/apt/trusted.gpg.d/papirus.gpg
-         mode: '0644'
+    - name: 🔹 [icons] ensure the papirus gpg has the correct permissions"
+      file:
+        path: /etc/apt/trusted.gpg.d/papirus.gpg
+        mode: '0644'
 
     - name: "🔹 [apt] add paprius repository"
       apt_repository:
