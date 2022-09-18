@@ -740,6 +740,7 @@
           - com.jgraph.drawio.desktop				      # diagrams.net (draw.io) diagram tool 
           - com.mattermost.Desktop					      # Opensource team chat
           - com.mattjakeman.ExtensionManager      # Gnome Extension Manager
+          - com.nextcloud.desktopclient.nextcloud
           - com.skype.Client                      # Skype
           - com.uploadedlobster.peek              # Simple screen recorder with an easy to use interface
           - fr.handbrake.ghb
