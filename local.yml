@@ -5,6 +5,8 @@
   become: true
 
   vars:
+    cert_manager_version: v1.9.1 # don't use latest from github due to prerelease publishing. 
+    datree_version: 1.6.37
 
   handlers:
 
@@ -281,6 +283,18 @@
         return_content: true                                             
       register: lsd_latest 
 
+    - name: 🔹 get the latest k3sup release 
+      uri:                                                               
+        url: https://api.github.com/repos/alexellis/k3sup/releases/latest
+        return_content: true                                             
+      register: k3sup_latest
+
+    - name: 🔹 get the latest k9s release 
+      uri:                                                               
+        url: https://api.github.com/repos/derailed/k9s/releases/latest
+        return_content: true                                             
+      register: k9s_latest
+
     # -----------------------------------------------------
     # GPG KEYS FOR 3RD PARTY REPOS
     # -----------------------------------------------------
@@ -386,7 +400,8 @@
         - { url: "https://dl.min.io/client/mc/release/linux-amd64/mc", dest: mc }
         # Kubectl
         - { url: "https://dl.k8s.io/release/{{ kubectl_latest.content }}/bin/linux/amd64/kubectl", dest: kubectl }
-      register: binary_output
+        # k3sup 
+        - { url: "https://github.com/alexellis/k3sup/releases/download/{{ k3sup_latest.content }}/k3sup", dest: k3sup } 
       retries: 3
       delay: 3
       until: binary_output is success
@@ -402,6 +417,12 @@
         - "https://github.com/bitwarden/cli/releases/download/{{ bitwarden_cli_latest.json.tag_name }}/bw-linux-{{ bitwarden_cli_latest.json.tag_name [1:] }}.zip"
         # Starship
         - "https://github.com/starship/starship/releases/download/{{ starship_latest.json.tag_name }}/starship-x86_64-unknown-linux-gnu.tar.gz"
+        # K9s 
+        - "https://github.com/derailed/k9s/releases/download/{{ k9s_latest.json.tag_name }}/k9s_Linux_x86_64.tar.gz"
+        # k8s - Cert Manager Command Line tool
+        - "https://github.com/cert-manager/cert-manager/releases/download/{{ cert_manager_version }}/cmctl-linux-amd64.tar.gz"
+        # Datree (k8s best practices scanning tool)
+        - "https://github.com/datreeio/datree/releases/download/{{ datree_version }}/datree-cli_{{ datree_version }}_Linux_x86_64.zip"
       register: binary_unarchive_output
       retries: 3
       delay: 3
@@ -451,6 +472,8 @@
         - "https://github.com/kubernetes/kompose/releases/download/{{ kompose_latest.json.tag_name }}/kompose_{{ kompose_latest.json.tag_name [1:] }}_amd64.deb"
         # lsd
         - "https://github.com/Peltoche/lsd/releases/download/{{ lsd_latest.json.tag_name }}/lsd_{{ lsd_latest.json.tag_name }}_amd64.deb"
+        # Minikube
+        - "https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb"
 
     # -----------------------------------------------------
     # PIP PACKAGES
