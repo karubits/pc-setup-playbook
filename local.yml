@@ -5,8 +5,6 @@
   become: true
 
   vars:
-    cert_manager_version: v1.9.1 # don't use latest from github due to prerelease publishing. 
-    datree_version: 1.6.37
 
   handlers:
 
@@ -295,6 +293,18 @@
         return_content: true                                             
       register: k9s_latest
 
+    - name: 🔹 get the latest certmanager cli release 
+      uri:                                                               
+        url: https://api.github.com/repos/cert-manager/cert-manager/releases/latest
+        return_content: true                                             
+      register: cmcli_latest
+
+    - name: 🔹 get the latest datree release 
+      uri:                                                               
+        url: https://api.github.com/repos/datreeio/datree/releases/latest
+        return_content: true                                             
+      register: datree_latest
+
     # -----------------------------------------------------
     # GPG KEYS FOR 3RD PARTY REPOS
     # -----------------------------------------------------
@@ -420,9 +430,9 @@
         # K9s 
         - "https://github.com/derailed/k9s/releases/download/{{ k9s_latest.json.tag_name }}/k9s_Linux_x86_64.tar.gz"
         # k8s - Cert Manager Command Line tool
-        - "https://github.com/cert-manager/cert-manager/releases/download/{{ cert_manager_version }}/cmctl-linux-amd64.tar.gz"
+        - "https://github.com/cert-manager/cert-manager/releases/download/{{ cmcli_latest.json.tag_name }}/cmctl-linux-amd64.tar.gz"
         # Datree (k8s best practices scanning tool)
-        - "https://github.com/datreeio/datree/releases/download/{{ datree_version }}/datree-cli_{{ datree_version }}_Linux_x86_64.zip"
+        - "https://github.com/datreeio/datree/releases/download/{{ datree_latest.json.tag_name }}/datree-cli_{{ datree_latest.json.tag_name }}_Linux_x86_64.zip"
       register: binary_unarchive_output
       retries: 3
       delay: 3
