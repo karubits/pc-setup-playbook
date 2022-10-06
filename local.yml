@@ -121,6 +121,7 @@
       apt:
         name:
           - at
+          - age                             # age—pronounced [aɡe̞], like the Italian “aghe”—is a simple, modern and secure file encryption tool, format, and Go library.
           - bat                             # Rust based replacement to cat
           - bzip2
           - ca-certificates
@@ -305,6 +306,12 @@
         return_content: true                                             
       register: datree_latest
 
+    - name: 🔹 get the latest datree release 
+      uri:                                                               
+        url: https://api.github.com/repos/mozilla/sops/releases/latest
+        return_content: true                                             
+      register: sops_latest
+
     # -----------------------------------------------------
     # GPG KEYS FOR 3RD PARTY REPOS
     # -----------------------------------------------------
@@ -484,6 +491,8 @@
         - "https://github.com/Peltoche/lsd/releases/download/{{ lsd_latest.json.tag_name }}/lsd_{{ lsd_latest.json.tag_name }}_amd64.deb"
         # Minikube
         - "https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb"
+        # Morzilla SOPS - Secrets OPerationS
+        - "https://github.com/mozilla/sops/releases/download/{{ sops_latest.json.tag_name }}/sops_{{ sops_latest.json.tag_name [1:] }}_amd64.deb"
 
     # -----------------------------------------------------
     # PIP PACKAGES
